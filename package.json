@@ -1,0 +1,15 @@
+{
+  "name": "pjsbundler",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@types/css": "^0.0.35",
+    "css": "^3.0.0"
+  }
+}
