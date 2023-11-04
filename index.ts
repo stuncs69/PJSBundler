@@ -1,6 +1,7 @@
 import fs from "fs";
 import { argv } from "process";
 import css from "css";
+import { IBundable } from "./interfaces";
 
 class Bundler {
     private args: string[] = argv;
@@ -8,6 +9,11 @@ class Bundler {
         console.error(`Error: ${short}`)
         console.log(errorMessage)
         process.exit(0)
+    }
+
+    private extractDOM(string: string) {
+        string.match(/<dom>([\s\S]*)<\/dom>/);
+        return RegExp.$1
     }
 
     private extractConfig(string: string) {
@@ -50,11 +56,14 @@ class Bundler {
         this.args = this.args.slice(2)
     }
 
-    public buildCLI(): Promise<string> {
+    public buildCLI(): Promise<IBundable> {
         return new Promise((resolve, reject) => {
+            console.log(this.args)
             fs.readFile(this.args[1], (_, result: Buffer) => {
                 resolve({
-                    css: this.extractCSS(result.toString())
+                    css: this.extractCSS(result.toString()),
+                    config: this.extractConfig(result.toString()),
+                    html: this.extractDOM(result.toString())
                 })
             })
         })
@@ -65,4 +74,6 @@ class Bundler {
 
 let x = new Bundler(true);
 
-x.buildCLI()
+x.buildCLI().then(result => {
+    console.log(result)
+})

@@ -1,5 +1,5 @@
-import css from 'css';
-
 export interface IBundable {
-    css: css.
+    css: any,
+    html: string,
+    config: any
 }
