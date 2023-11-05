@@ -2,6 +2,8 @@ import fs from "fs";
 import { argv } from "process";
 import css from "css";
 import { IBundable } from "./interfaces";
+import { SystemError } from "bun";
+import JSDOM from "jsdom";
 
 class Bundler {
     private args: string[] = argv;
@@ -56,24 +58,32 @@ class Bundler {
         this.args = this.args.slice(2)
     }
 
-    public buildCLI(): Promise<IBundable> {
+    public build(src: string): Promise<IBundable> {
         return new Promise((resolve, reject) => {
-            console.log(this.args)
-            fs.readFile(this.args[1], (_, result: Buffer) => {
-                resolve({
-                    css: this.extractCSS(result.toString()),
-                    config: this.extractConfig(result.toString()),
-                    html: this.extractDOM(result.toString())
-                })
-            })
+			resolve({
+				css: this.extractCSS(src.toString()),
+				config: this.extractConfig(src.toString()),
+				html: this.extractDOM(src.toString())
+			})
         })
     }
+
+	public CLI(): Promise<IBundable> {
+		return new Promise((resolve) => {
+			fs.readFile(this.args[1], (err: SystemError | null, data: Buffer) => {
+				if (err) throw err
+				this.build(data.toString()).then(result => {
+					resolve(result)
+				})
+			})
+		})
+	}
 }
 
 // let LPcontent = fs.readFileSync(process.cwd() + "/test.html").toString()
 
 let x = new Bundler(true);
-
-x.buildCLI().then(result => {
-    console.log(result)
+x.CLI().then((data: IBundable) => {
+	console.log(data)
+	console.log(data.css[1].declarations)
 })
